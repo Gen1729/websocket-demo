@@ -45,6 +45,7 @@ export default function Home() {
   const selfJoinedAtRef = useRef<number | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
   const debounceRef = useRef<number | null>(null);
+  const lastSentRef = useRef<number>(0);
 
   const sortedParticipants = useMemo(() => {
     return [...participants].sort((a, b) => a.joinedAt - b.joinedAt);
@@ -229,23 +230,42 @@ export default function Home() {
       return;
     }
 
-    if (debounceRef.current) {
-      window.clearTimeout(debounceRef.current);
-    }
-
-    debounceRef.current = window.setTimeout(() => {
+    const sendPayload = (text: string) => {
       if (!socketRef.current || !roomId) return;
       const payload = {
         type: "state",
         roomId,
         userId: selfIdRef.current,
         name: displayName.trim(),
-        text: nextText,
+        text,
         ts: Date.now(),
         joinedAt: selfJoinedAtRef.current ?? Date.now(),
       };
       socketRef.current.send(JSON.stringify(payload));
-    }, 200);
+      lastSentRef.current = Date.now();
+    };
+
+    const now = Date.now();
+    const elapsed = now - lastSentRef.current;
+    const remaining = Math.max(200 - elapsed, 0);
+
+    if (remaining === 0) {
+      if (debounceRef.current) {
+        window.clearTimeout(debounceRef.current);
+        debounceRef.current = null;
+      }
+      sendPayload(nextText);
+      return;
+    }
+
+    if (debounceRef.current) {
+      window.clearTimeout(debounceRef.current);
+    }
+
+    debounceRef.current = window.setTimeout(() => {
+      sendPayload(nextText);
+      debounceRef.current = null;
+    }, remaining);
   };
 
   const handleSelfTextChange = (nextText: string) => {
@@ -405,7 +425,7 @@ export default function Home() {
                     </span>
                   </div>
                   <div className="flex h-full w-full items-center justify-center">
-                    <p className="text-[2em] leading-relaxed text-center break-words">
+                    <p className="text-[2em] leading-relaxed text-center break-all">
                       {participant.text || ""}
                     </p>
                   </div>
