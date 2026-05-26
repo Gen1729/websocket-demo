@@ -29,7 +29,7 @@ const getGridConfig = (count: number) => {
   if (count === 2) return { cols: 2, rows: 1 };
   if (count <= 4) return { cols: 2, rows: 2 };
   if (count <= 6) return { cols: 3, rows: 2 };
-  return { cols: 3, rows: 3 };
+  return { cols: 3, rows: 3};
 };
 
 export default function Home() {
@@ -46,6 +46,7 @@ export default function Home() {
   const socketRef = useRef<WebSocket | null>(null);
   const debounceRef = useRef<number | null>(null);
   const lastSentRef = useRef<number>(0);
+  const deniedRef = useRef<boolean>(false);
 
   const sortedParticipants = useMemo(() => {
     return [...participants].sort((a, b) => a.joinedAt - b.joinedAt);
@@ -204,6 +205,12 @@ export default function Home() {
         return;
       }
 
+      if (msg.type === "deny") {
+        deniedRef.current = true;
+        setError("部屋の人数が上限に達しています。");
+        setView("lobby");
+      }
+
       if (msg.type === "error") {
         setError(msg.message ?? "unknown error");
         setView("lobby");
@@ -215,6 +222,10 @@ export default function Home() {
     };
 
     ws.onclose = () => {
+      if (deniedRef.current) {
+        deniedRef.current = false;
+        return;
+      }
       setError("接続が切れました");
       setView("lobby");
     };

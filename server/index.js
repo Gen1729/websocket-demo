@@ -46,6 +46,21 @@ wss.on("connection", (ws) => {
           latestStateByUser.set(roomId, new Map());
         }
 
+        const roomClients = rooms.get(roomId);
+
+        if (roomClients.size >= 9){
+          ws.send(
+            JSON.stringify({
+              type: "deny",
+              roomId,
+              userId,
+              name,
+              ts: Date.now(),
+            })
+          );
+          return;
+        }
+
         const joinedAt = Date.now();
         latestStateByUser.get(roomId).set(userId, {
           name,
@@ -54,7 +69,6 @@ wss.on("connection", (ws) => {
           joinedAt,
         });
 
-        const roomClients = rooms.get(roomId);
         roomClients.add(ws);
         userByWs.set(ws, { roomId: roomId, userId: userId });
 
