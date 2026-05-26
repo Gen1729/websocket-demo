@@ -13,7 +13,7 @@ type Participant = {
   isSelf?: boolean;
 };
 
-const ROOM_ID_CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
+const ROOM_ID_CHARS = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
 
 const createRoomId = () => {
   let result = "";
