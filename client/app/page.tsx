@@ -92,12 +92,12 @@ export default function Home() {
   };
 
   const handleJoinRoom = () => {
-    const cleaned = joinRoomId.trim().toUpperCase();
+    const cleaned = joinRoomId.trim().toUpperCase().substring(0,8);
     if (!cleaned) {
       setError("部屋番号を入力してください");
       return;
     }
-    if (!/^[A-Z0-9]{8}$/.test(cleaned)) {
+    if (!/^[ABCDEFGHJKLMNPQRSTUVWXYZ23456789]{8}$/.test(cleaned)) {
       setError("部屋番号は8桁の英数字（大文字）です");
       return;
     }
