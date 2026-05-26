@@ -268,7 +268,13 @@ export default function Home() {
     }, remaining);
   };
 
+  const handleDisplayName = (nextName: string) => {
+    if (nextName.length > 20)nextName = nextName.substring(0,20);
+    setDisplayName(nextName);
+  }
+
   const handleSelfTextChange = (nextText: string) => {
+    if (nextText.length > 256)nextText = nextText.substring(0,256);
     setSelfText(nextText);
     sendStateDebounced(nextText);
     setParticipants((prev) => {
@@ -328,7 +334,7 @@ export default function Home() {
                   className="rounded-xl border border-zinc-200 bg-white px-4 py-3 text-base text-zinc-900 shadow-sm outline-none transition focus:border-zinc-400"
                   placeholder="例: TAKA"
                   value={displayName}
-                  onChange={(event) => setDisplayName(event.target.value)}
+                  onChange={(event) => handleDisplayName(event.target.value)}
                 />
                 <p className="text-xs text-zinc-500">
                   ルーム内の表示名として使われます。
