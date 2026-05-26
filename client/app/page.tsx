@@ -40,7 +40,6 @@ export default function Home() {
   const [selfText, setSelfText] = useState("");
   const [participants, setParticipants] = useState<Participant[]>([]);
   const [error, setError] = useState<string | null>(null);
-  const [isInRoom, setIsInRoom] = useState<boolean>(false);
   const selfIdRef = useRef(`self-${crypto.randomUUID()}`);
   const selfJoinedAtRef = useRef<number | null>(null);
   const socketRef = useRef<WebSocket | null>(null);
@@ -70,7 +69,6 @@ export default function Home() {
     setRoomId(targetRoomId);
     setView("room");
     setSelfText("");
-    setIsInRoom(true);
 
     const now = Date.now();
     selfJoinedAtRef.current = now;
@@ -111,7 +109,6 @@ export default function Home() {
     setParticipants([]);
     setSelfText("");
     setError(null);
-    setIsInRoom(false);
     selfJoinedAtRef.current = null;
     if (debounceRef.current) {
       window.clearTimeout(debounceRef.current);
@@ -348,7 +345,7 @@ export default function Home() {
                   onChange={(event) => handleDisplayName(event.target.value)}
                 />
                 <p className="text-xs text-zinc-500">
-                  ルーム内の表示名として使われます。
+                  ルーム内での表示名として使われます。
                 </p>
               </div>
 
@@ -358,7 +355,7 @@ export default function Home() {
                     roomを作成
                   </h3>
                   <p className="mt-2 text-sm text-zinc-600">
-                    8桁の英数字（大文字）を自動生成します。
+                    roomIdとして8桁の英数字（大文字）を自動生成します。
                   </p>
                 </div>
                 <button
@@ -375,7 +372,7 @@ export default function Home() {
                     roomに参加
                   </h3>
                   <p className="mt-2 text-sm text-zinc-600">
-                    部屋番号を入力して参加します。
+                    部屋番号を入力して参加します。部屋番号を指定したroom作成としても使用可能です。
                   </p>
                 </div>
                 <input
@@ -385,7 +382,7 @@ export default function Home() {
                   onChange={(event) => setJoinRoomId(event.target.value.toUpperCase())}
                 />
                 <p className="text-xs text-zinc-500">
-                  8桁の英数字（A-Z, 0-9）のみ。
+                  8桁の英数字（A-Z, 0-9）のみ。（ただしI,1,O,0は使用不可）
                 </p>
                 <button
                   className="rounded-xl bg-zinc-900 px-5 py-3 text-sm font-semibold text-white shadow-lg shadow-zinc-900/30 transition hover:-translate-y-0.5"
@@ -396,7 +393,7 @@ export default function Home() {
               </div>
             </div>
 
-            {error && isInRoom && (
+            {error && (
               <div className="rounded-2xl border border-rose-200 bg-rose-50 px-4 py-3 text-sm text-rose-700">
                 {error}
               </div>
